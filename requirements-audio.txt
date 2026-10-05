@@ -1,0 +1,2 @@
+# only needed to transcribe audio (mp3/wav) into MIDI
+basic-pitch
