@@ -10,6 +10,7 @@ maestro*/
 __pycache__/
 *.egg-info/
 .venv/
+.venv311
 .pytest_cache/
 .ipynb_checkpoints/
 !checkpoints/.gitkeep

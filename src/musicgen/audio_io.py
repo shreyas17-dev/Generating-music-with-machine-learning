@@ -13,9 +13,11 @@ def audio_to_midi(audio_path, midi_path):
     """Transcribe a (solo piano) recording to a MIDI file. Accepts wav / mp3 / flac / ogg."""
     try:
         from basic_pitch.inference import predict
-    except ImportError as e:
-        raise ImportError("basic-pitch is not installed. Run: pip install -r requirements-audio.txt "
-                          "(or pass --midi-input to skip transcription)") from e
+    except ModuleNotFoundError as e:
+        if e.name == "basic_pitch":
+            raise ImportError("basic-pitch is not installed. Run: pip install -r requirements-audio.txt "
+                              "(or pass --midi-input to skip transcription)") from e
+        raise        # basic-pitch is installed but one of ITS dependencies is missing: show the real error
     if not Path(audio_path).exists():
         raise FileNotFoundError(audio_path)
     _, midi_data, _ = predict(str(audio_path))        # midi_data is a pretty_midi.PrettyMIDI
@@ -39,7 +41,8 @@ def midi_to_audio(midi_path, audio_path, soundfont=None, sample_rate=44100):
         raise FileNotFoundError("soundfont (.sf2) not found. Pass --soundfont <file.sf2> or set SOUNDFONT.")
     exe = _find_fluidsynth()
     os.makedirs(os.path.dirname(os.path.abspath(audio_path)), exist_ok=True)
-    cmd = [exe, "-ni", str(soundfont), str(midi_path), "-F", str(audio_path), "-r", str(sample_rate)]
+    # options must come BEFORE the soundfont and MIDI file (FluidSynth 2.5+ rejects them afterwards)
+    cmd = [exe, "-ni", "-F", str(audio_path), "-r", str(sample_rate), str(soundfont), str(midi_path)]
     res = subprocess.run(cmd, capture_output=True, text=True)
     if res.returncode != 0 or not Path(audio_path).exists():
         raise RuntimeError("fluidsynth failed:\n" + res.stdout + res.stderr)
