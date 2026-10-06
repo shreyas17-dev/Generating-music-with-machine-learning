@@ -1,6 +1,5 @@
 # data, weights, generated files
 data/*
-checkpoints/*
 outputs/*
 maestro*/
 *.pt
