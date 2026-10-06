@@ -1,5 +1,6 @@
 # data, weights, generated files
 data/*
+
 outputs/*
 maestro*/
 *.pt
